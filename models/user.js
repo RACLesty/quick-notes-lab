@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
 
-const SALT_ROUNDS = 6;  // 6 is a reasonable value
+const SALT_ROUNDS = 6;
+
+
 
 const userSchema = new Schema(
   {
@@ -17,18 +19,21 @@ const userSchema = new Schema(
     password: {
       type: String,
       trim: true,
-      minLength: 3,
+      minLnegth: 3,
       required: true,
     },
-  }, {
+  },
+  {
     timestamps: true,
+    // Even though it's hashed - don't serialize the password
     toJSON: {
-        transform: function(doc, ret) {
-          delete ret.password;
-          return ret;
-        }
-      }
-});
+      transform: function (doc, ret) {
+        delete ret.password;
+        return ret;
+      },
+    },
+  }
+);
 
 userSchema.pre('save', async function(next) {
     // 'this' is the user doc
@@ -36,6 +41,6 @@ userSchema.pre('save', async function(next) {
     // update the password with the computed hash
     this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
     return next();
-  });
+});
 
 module.exports = mongoose.model("User", userSchema);
